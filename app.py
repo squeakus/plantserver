@@ -20,16 +20,24 @@ sys.path.insert(0, caffe_root + 'python')
 import caffe
 
 REPO_DIRNAME = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../..')
+
 UPLOAD_FOLDER = '/tmp/caffe_demos_uploads'
 ALLOWED_IMAGE_EXTENSIONS = set(['png', 'bmp', 'jpg', 'jpe', 'jpeg', 'gif'])
 
 # Obtain the flask app object
 app = flask.Flask(__name__)
 
+
+@app.route('/')
+def index():
+    return "Plantserver is up and running"
+
+
 @app.route('/classify_upload', methods=['POST'])
 def classify_upload():
 
     try:
+        print "hello!", flask.request.files
         # We will save the file to disk for possible data collection.
         imagefile = flask.request.files['filedata']
         print "imagefile", imagefile
@@ -42,29 +50,10 @@ def classify_upload():
 
     except Exception as err:
         logging.info('Uploaded image open error: %s', err)
-        return flask.render_template(
-            'index.html', has_result=True,
-            result=(False, 'Cannot open uploaded image.')
-        )
+        return ('Cannot open uploaded image.')
 
     result = app.clf.classify_image(image)
-
-    return result
-    # return flask.render_template(
-    #     'index.html', has_result=True, result=result,
-    #     imagesrc=embed_image_html(image)
-    # )
-
-
-def embed_image_html(image):
-    """Creates an image embedded in HTML base64 format."""
-    image_pil = Image.fromarray((255 * image).astype('uint8'))
-    image_pil = image_pil.resize((256, 256))
-    string_buf = StringIO.StringIO()
-    image_pil.save(string_buf, format='png')
-    data = string_buf.getvalue().encode('base64').replace('\n', '')
-    return 'data:image/png;base64,' + data
-
+    return str(result)
 
 def allowed_file(filename):
     return (
@@ -86,7 +75,7 @@ class ImagenetClassifier(object):
         'bet_file': (
             '{}/data/ilsvrc12/imagenet.bet.pickle'.format(REPO_DIRNAME)),
     }
-    print(default_args)
+
     for key, val in default_args.iteritems():
         if not os.path.exists(val):
             raise Exception(
@@ -131,8 +120,7 @@ class ImagenetClassifier(object):
                 for i, p in zip(indices, predictions)
             ]
             logging.info('result: %s', str(meta))
-            bet_result= [("shit",0.3),("arghh",0.2),("moo",0.1),]
-            return (True, meta, bet_result, '%.3f' % (endtime - starttime))
+            return (True, meta, '%.3f' % (endtime - starttime))
 
         except Exception as err:
             logging.info('Classification error: %s', err)

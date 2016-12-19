@@ -15,6 +15,8 @@ import cStringIO as StringIO
 import urllib
 import exifutil
 import sys
+from flask import jsonify
+
 caffe_root = '/home/jonathan/data/linuxapps/caffe/'  # this file should be run from {caffe_root}/examples (otherwise change this line)
 sys.path.insert(0, caffe_root + 'python')
 import caffe
@@ -50,17 +52,16 @@ def classify_upload():
 
     except Exception as err:
         logging.info('Uploaded image open error: %s', err)
-        return ('Cannot open uploaded image.')
+        return jsonify('Cannot open uploaded image.')
 
     result = app.clf.classify_image(image)
-    return str(result)
+    return jsonify(result)
 
 def allowed_file(filename):
     return (
         '.' in filename and
         filename.rsplit('.', 1)[1] in ALLOWED_IMAGE_EXTENSIONS
     )
-
 
 class ImagenetClassifier(object):
     default_args = {
@@ -120,12 +121,12 @@ class ImagenetClassifier(object):
                 for i, p in zip(indices, predictions)
             ]
             logging.info('result: %s', str(meta))
-            return (True, meta, '%.3f' % (endtime - starttime))
+            return ({'success':True, 'result': meta, 'time':'%.3f' % (endtime - starttime)})
 
         except Exception as err:
             logging.info('Classification error: %s', err)
-            return (False, 'Something went wrong when classifying the '
-                           'image. Maybe try another one?')
+            return jsonify({'success':False, 'result':'Failed toclassify the'
+                           'image. Maybe try another one?'})
 
 
 def start_tornado(app, port=5000):

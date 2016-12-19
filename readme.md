@@ -39,3 +39,7 @@ In a nutshell: ImageNet predictions are made at the leaf nodes, but the organiza
 To give "maximally accurate" results, we "back off" from maximally specific predictions to maintain a high accuracy.
 The `bet_file` that is loaded in the demo provides the graph structure and names of all relevant ImageNet nodes as well as measures of information gain between them.
 Please see the "Hedging your bets" paper from [CVPR 2012](http://www.image-net.org/projects/hedging/) for further information.
+
+
+How to call:
+curl  -F name=file -F filedata=@/home/jonathan/Downloads/testocr.jpg http://localhost:5000/

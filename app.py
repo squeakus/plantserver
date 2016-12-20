@@ -23,7 +23,7 @@ import caffe
 
 REPO_DIRNAME = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../..')
 
-UPLOAD_FOLDER = '/tmp/caffe_demos_uploads'
+UPLOAD_FOLDER = './images'
 ALLOWED_IMAGE_EXTENSIONS = set(['png', 'bmp', 'jpg', 'jpe', 'jpeg', 'gif'])
 
 # Obtain the flask app object
@@ -37,7 +37,6 @@ def index():
 
 @app.route('/classify_upload', methods=['POST'])
 def classify_upload():
-
     try:
         print "hello!", flask.request.files
         # We will save the file to disk for possible data collection.
